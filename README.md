@@ -70,12 +70,13 @@ _Para el desarrollo de esta app se utilizo las siguientes herramientas._
 
 ## Autores ✒️
 
-- **Andrés Coello** - _Developer full stack_ - [Andres Coello](https://www.instagram.com/coellogoyes/)
+- **Andrés Coello Goyes** - _SOFTWARE ENGINEER_ - [Andres Coello](https://linktr.ee/gandrescoello)
 
 #### 🔗 Links
+
 [![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://andres-coello-goyes.vercel.app/)
-[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/andr%C3%A9s-roberto-coello-goyes/)
-[![twitter](https://img.shields.io/badge/twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://x.com/AndresC79085858)
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/andrescoellogoyes/)
+[![twitter](https://img.shields.io/badge/twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://x.com/acoellogoyes)
 
 ## Expresiones de Gratitud 🎁
 
@@ -85,4 +86,6 @@ _Para el desarrollo de esta app se utilizo las siguientes herramientas._
 
 ---
 
-⌨️ con ❤️ por [Andres Coello](https://www.instagram.com/coellogoyes/) 😊
+⌨️ con ❤️ por [Andres Coello Goyes](https://linktr.ee/gandrescoello) 😊
+
+<img width="400" height="400" alt="1764558900283" src="https://github.com/user-attachments/assets/cde88968-7856-49ec-bdb1-53a82bf9caa3" />
