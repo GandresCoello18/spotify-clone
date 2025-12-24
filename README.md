@@ -1,3 +1,5 @@
+<img width="1899" height="910" alt="image" src="https://github.com/user-attachments/assets/b8974e3a-53d8-4d43-8f26-65ce38ec0286" />
+
 # Spotify App
 App de react usando la api de app musical Spotify para obtener: artistas, busquedas, albumes, mi perfil, acciones como añadir o eliminar albumes.
 
