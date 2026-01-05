@@ -3,15 +3,17 @@ import { ExitSvg } from '@/components/svg/exit.svg';
 import useAuth from '@/hooks/useAuth';
 import { removeCookie } from 'react-use-cookie';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { COOKIE_NAME_SPOTIFY_TOKEN } from '@/utils/storage-names';
+import { STORAGE_KEYS } from '@/constants/storage.constants';
+import { ROUTES } from '@/constants/routes.constants';
 
 const Header = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const handleRemoveToken = () => {
-    removeCookie(COOKIE_NAME_SPOTIFY_TOKEN);
-    navigate('/');
+    removeCookie(STORAGE_KEYS.SPOTIFY_TOKEN);
+    removeCookie(STORAGE_KEYS.SPOTIFY_TOKEN_EXPIRATION);
+    navigate(ROUTES.HOME);
   };
 
   return (
@@ -24,14 +26,14 @@ const Header = () => {
       {isAuthenticated ? (
         <nav className="flex items-center">
           <Link
-            to="/search"
-            className={`mx-2 ${location.pathname === '/search' ? 'text-secondary' : ''}`}
+            to={ROUTES.SEARCH}
+            className={`mx-2 ${location.pathname === ROUTES.SEARCH ? 'text-secondary' : ''}`}
           >
             Buscar
           </Link>
           <Link
-            to="/my-albums"
-            className={`mx-2 ${location.pathname === '/my-albums' ? 'text-secondary' : ''}`}
+            to={ROUTES.MY_ALBUMS}
+            className={`mx-2 ${location.pathname === ROUTES.MY_ALBUMS ? 'text-secondary' : ''}`}
           >
             Mis álbumes
           </Link>

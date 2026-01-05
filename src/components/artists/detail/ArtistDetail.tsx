@@ -1,5 +1,5 @@
 import { CheckCircleSvg } from '@/components/svg/check.circle.svg';
-import { ArtistsModel } from '@/model/spotify.artist.model';
+import type { ArtistsModel } from '@/types/spotify.types';
 
 type PropsArtistDetail = {
   artist: ArtistsModel;

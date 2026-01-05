@@ -1,13 +1,14 @@
-import { getMeAlbums } from '@/api/spotify.album.api';
 import { AlbumCard, AlbumUpdateAction } from '@/components/album/AlbumCard';
 import { AlbumCardSkeleton } from '@/components/album/AlbumCardSkeleton';
 import { Pagination } from '@/components/Pagination';
 import useAuth from '@/hooks/useAuth';
-import { MeItemAlbumModel } from '@/model/spotify.me.album.model';
-import { fetchActionAlbum } from '@/services/artist/artist.service';
+import type { MeItemAlbumModel } from '@/types/spotify.types';
+import { albumActionService } from '@/services/album/album.service';
+import { getMeAlbumsService } from '@/services/album/album.service';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toast';
+import { ROUTES } from '@/constants/routes.constants';
 
 const MyAlbumsPage = () => {
   const { userToken } = useAuth();
@@ -23,18 +24,18 @@ const MyAlbumsPage = () => {
     const offset = currentPage > 1 ? (currentPage - 1) * limit : 0;
 
     try {
-      const { items, total } = await getMeAlbums({
-        token: userToken as string,
+      const { items, total } = await getMeAlbumsService({
+        userToken: userToken as string,
         limit,
         offset,
       });
       setAlbums(items || []);
       setPages(total ? Math.ceil(total / limit) : 1);
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.error(e.message);
-        navigate('/404');
-      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Error al cargar tus álbumes';
+      toast.error(message);
+      navigate(ROUTES.NOT_FOUND);
     } finally {
       setLoading(false);
     }
@@ -44,9 +45,15 @@ const MyAlbumsPage = () => {
     fetchMeAlbums();
   }, [fetchMeAlbums]);
 
-  const handleUpdateAlbum = (paramsClick: AlbumUpdateAction) => {
-    fetchActionAlbum({ userToken, ...paramsClick });
-    fetchMeAlbums();
+  const handleUpdateAlbum = async (paramsClick: AlbumUpdateAction) => {
+    const success = await albumActionService({
+      userToken,
+      ...paramsClick,
+    });
+
+    if (success) {
+      fetchMeAlbums();
+    }
   };
 
   return (

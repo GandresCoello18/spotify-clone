@@ -1,16 +1,16 @@
-import { getSearchAlbum } from '@/api/spotify.search.api';
 import { AlbumCard, AlbumUpdateAction } from '@/components/album/AlbumCard';
 import { AlbumCardSkeleton } from '@/components/album/AlbumCardSkeleton';
 import { Pagination } from '@/components/Pagination';
 import { toast } from 'react-toast';
 import { useDebouncedCallback } from 'use-debounce';
 import useAuth from '@/hooks/useAuth';
-import { ItemResultAlbumModel } from '@/model/spotify.album.model';
+import type { ItemResultAlbumModel } from '@/types/spotify.types';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NoResults } from '@/components/NoResults';
-import { fetchActionAlbum } from '@/services/artist/artist.service';
-import { getMeSavedAlbums } from '@/api/spotify.album.api';
+import { albumActionService } from '@/services/album/album.service';
+import { searchAlbumsService } from '@/services/search/search.service';
+import { ROUTES } from '@/constants/routes.constants';
 
 const SearchPage = () => {
   const { userToken } = useAuth();
@@ -27,33 +27,34 @@ const SearchPage = () => {
   }, 1000);
 
   const fetchResultSearch = useCallback(async () => {
+    if (!search.trim()) {
+      setAlbums([]);
+      setTotalResults(0);
+      setPages(1);
+      return;
+    }
+
     setLoading(true);
 
     try {
       const limit = 4;
       const offset = currentPage > 1 ? (currentPage - 1) * limit : 0;
-      const { albums } = await getSearchAlbum({
+
+      const result = await searchAlbumsService({
         token: userToken,
         artist: search,
         limit,
         offset,
       });
 
-      const ids = albums?.items.map((item) => item.id) || [];
-      const isSaved = await getMeSavedAlbums({ token: userToken, ids });
-      const updateAlbum = albums?.items.map((item) => ({
-        ...item,
-        isAdded: isSaved[albums.items.indexOf(item)],
-      }));
-
-      setAlbums(updateAlbum || []);
-      setTotalResults(albums?.total || 0);
-      setPages(albums?.total ? Math.ceil(albums.total / limit) : 1);
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.error(e.message);
-        navigate('/404');
-      }
+      setAlbums(result.albums);
+      setTotalResults(result.total);
+      setPages(result.pages);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Error al buscar álbumes';
+      toast.error(message);
+      navigate(ROUTES.NOT_FOUND);
     } finally {
       setLoading(false);
     }
@@ -63,20 +64,25 @@ const SearchPage = () => {
     fetchResultSearch();
   }, [fetchResultSearch]);
 
-  const handleUpdateAlbum = (paramsClick: AlbumUpdateAction) => {
-    fetchActionAlbum({ userToken, ...paramsClick });
-    
-    const updateAlbums = albums.map(album => {
-      if (paramsClick.albumId === album.id) {
-        return {
-          ...album,
-          isAdded: !paramsClick.isAdded
-        }
-      }
-      return album;
+  const handleUpdateAlbum = async (paramsClick: AlbumUpdateAction) => {
+    const success = await albumActionService({
+      userToken,
+      ...paramsClick,
     });
 
-    setAlbums(updateAlbums);
+    if (success) {
+      const updateAlbums = albums.map((album) => {
+        if (paramsClick.albumId === album.id) {
+          return {
+            ...album,
+            isAdded: !paramsClick.isAdded,
+          };
+        }
+        return album;
+      });
+
+      setAlbums(updateAlbums);
+    }
   };
 
   return (

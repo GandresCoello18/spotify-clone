@@ -1,26 +1,10 @@
-import { BASE_URL_SPOTIFY_AUTHORIZE } from '@/api/spotify.authorization.api';
 import { ArrowRightSvg } from '@/components/svg/arrow-right.svg';
 import { SvgInclinedArrow } from '@/components/svg/inclined-arrow.svg';
-import { URL_REDIRECT_CALLBACK_SPOTIFY } from '@/utils/url';
+import { getSpotifyAuthUrl } from '@/config/spotify.config';
 
 const LoginPage = () => {
   const handleLoginWithSpotify = () => {
-    const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-    const redirectUri = URL_REDIRECT_CALLBACK_SPOTIFY;
-    const scopes = [
-      'user-read-email',
-      'user-library-modify',
-      'user-library-read',
-      'user-read-private',
-    ];
-
-    const authUrl =
-      BASE_URL_SPOTIFY_AUTHORIZE +
-      `client_id=${clientId}&` +
-      `response_type=code&` +
-      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-      `scope=${encodeURIComponent(scopes.join(' '))}`;
-
+    const authUrl = getSpotifyAuthUrl();
     window.location.href = authUrl;
   };
 

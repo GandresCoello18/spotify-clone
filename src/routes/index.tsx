@@ -8,6 +8,7 @@ import NotFound from '@/pages/not-found/NotFound';
 import ProtectedRoute from './ProtectedRoute';
 import MyAlbumsPage from '@/pages/album/my-albums';
 import PublicRoute from './PublicRoute';
+import { ROUTES } from '@/constants/routes.constants';
 
 const AppRoutes = () => {
   return (
@@ -15,16 +16,19 @@ const AppRoutes = () => {
       <MainLayout>
         <Routes>
           <Route element={<PublicRoute />}>
-            <Route path="/" element={<LoginPage />} />
+            <Route path={ROUTES.HOME} element={<LoginPage />} />
           </Route>
           <Route element={<ProtectedRoute />}>
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/artist/:artistId" element={<ArtistDetailsPage />} />
-            <Route path="/my-albums" element={<MyAlbumsPage />} />
+            <Route path={ROUTES.SEARCH} element={<SearchPage />} />
+            <Route
+              path={ROUTES.ARTIST_DETAILS}
+              element={<ArtistDetailsPage />}
+            />
+            <Route path={ROUTES.MY_ALBUMS} element={<MyAlbumsPage />} />
           </Route>
-          <Route path="/callback" element={<SpotifyCallbackPage />} />
+          <Route path={ROUTES.CALLBACK} element={<SpotifyCallbackPage />} />
+          <Route path={ROUTES.NOT_FOUND} element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
-          <Route path="/404" element={<NotFound />} />
         </Routes>
       </MainLayout>
     </Router>

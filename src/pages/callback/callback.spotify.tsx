@@ -1,35 +1,36 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {
-  COOKIE_NAME_SPOTIFY_TOKEN,
-  COOKIE_NAME_SPOTIFY_TOKEN_EXPIRATION,
-} from '@/utils/storage-names';
 import { useEffect } from 'react';
-import { setCookie } from 'react-use-cookie';
 import { useNavigate } from 'react-router-dom';
-import { getAccessTokenSpotify } from '@/api/spotify.authorization.api';
 import useAuth from '@/hooks/useAuth';
+import { useSpotifyAuth } from '@/hooks/useSpotifyAuth';
+import { ROUTES } from '@/constants/routes.constants';
 
 const SpotifyCallbackPage = () => {
   const { isAuthenticated } = useAuth();
+  const { saveToken, exchangeCodeForToken } = useSpotifyAuth();
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
 
   const fetchAccessToken = async (code: string) => {
-    const data = await getAccessTokenSpotify({ code });
+    try {
+      const tokenData = await exchangeCodeForToken(code);
 
-    if (!data?.access_token) return navigate('/404');
+      if (!tokenData?.access_token) {
+        navigate(ROUTES.NOT_FOUND);
+        return;
+      }
 
-    const expirationTime = Date.now() + data.expires_in * 1000; // 1 hora de vida
-    setCookie(COOKIE_NAME_SPOTIFY_TOKEN_EXPIRATION, expirationTime.toString(), {
-      days: 1,
-    });
-    setCookie(COOKIE_NAME_SPOTIFY_TOKEN, data.access_token, { days: 1 });
-    navigate('/search');
+      saveToken(tokenData);
+      navigate(ROUTES.SEARCH);
+    } catch (error) {
+      console.error('Error fetching access token:', error);
+      navigate(ROUTES.NOT_FOUND);
+    }
   };
 
   useEffect(() => {
-    if (isAuthenticated) navigate('/search');
+    if (isAuthenticated) navigate(ROUTES.SEARCH);
     if (code) fetchAccessToken(code);
   }, [code, isAuthenticated]);
 

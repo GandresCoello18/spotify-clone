@@ -1,18 +1,21 @@
-import { getArtistById } from '@/api/spotify.artist.api';
 import { AlbumCard, AlbumUpdateAction } from '@/components/album/AlbumCard';
 import { Pagination } from '@/components/Pagination';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toast';
 import useAuth from '@/hooks/useAuth';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArtistsModel } from '@/model/spotify.artist.model';
+import type { ArtistsModel, ItemResultAlbumModel } from '@/types/spotify.types';
 import { ArtistDetail } from '@/components/artists/detail/ArtistDetail';
 import { ArtistSkeleton } from '@/components/artists/detail/ArtistDetailSkeleton';
-import { getAlbumsByArtist, getMeSavedAlbums } from '@/api/spotify.album.api';
-import { ItemResultAlbumModel } from '@/model/spotify.album.model';
 import { AlbumCardSkeleton } from '@/components/album/AlbumCardSkeleton';
 import { NoResults } from '@/components/NoResults';
-import { fetchActionAlbum } from '@/services/artist/artist.service';
+import { albumActionService } from '@/services/album/album.service';
+import {
+  getArtistDetailsService,
+  getArtistAlbumsService,
+} from '@/services/artist/artist.service';
+import { getMeSavedAlbums } from '@/api/spotify/spotify.album.api';
+import { ROUTES } from '@/constants/routes.constants';
 
 const ArtistDetailsPage = () => {
   const navigate = useNavigate();
@@ -25,33 +28,39 @@ const ArtistDetailsPage = () => {
   const [albums, setAlbums] = useState<ItemResultAlbumModel[]>([]);
 
   const fetchDetailsArtist = useCallback(async () => {
+    if (!artistId) return;
+
     setLoading(true);
 
     try {
-      const artist = await getArtistById({
+      const artistData = await getArtistDetailsService({
         token: userToken,
-        artistId: artistId as string,
+        artistId,
       });
-      setArtist(artist || null);
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.error(e.message);
-        navigate('/404');
-      }
+      setArtist(artistData || null);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Error al cargar los detalles del artista';
+      toast.error(message);
+      navigate(ROUTES.NOT_FOUND);
     } finally {
       setLoading(false);
     }
   }, [userToken, artistId, navigate]);
 
   const fetchAlbumsByArtist = useCallback(async () => {
+    if (!artistId) return;
+
     setLoading(true);
     const limit = 8;
     const offset = currentPage > 1 ? (currentPage - 1) * limit : 0;
 
     try {
-      const { items, total } = await getAlbumsByArtist({
+      const { items, total } = await getArtistAlbumsService({
         token: userToken,
-        artistId: artistId as string,
+        artistId,
         limit,
         offset,
       });
@@ -65,11 +74,13 @@ const ArtistDetailsPage = () => {
 
       setAlbums(updateAlbum || []);
       setPages(total ? Math.round(total / limit) : 1);
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.error(e.message);
-        navigate('/404');
-      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Error al cargar los álbumes del artista';
+      toast.error(message);
+      navigate(ROUTES.NOT_FOUND);
     } finally {
       setLoading(false);
     }
@@ -83,9 +94,15 @@ const ArtistDetailsPage = () => {
     fetchAlbumsByArtist();
   }, [fetchAlbumsByArtist]);
 
-  const handleUpdateAlbum = (paramsClick: AlbumUpdateAction) => {
-    fetchActionAlbum({ userToken, ...paramsClick });
-    fetchAlbumsByArtist();
+  const handleUpdateAlbum = async (paramsClick: AlbumUpdateAction) => {
+    const success = await albumActionService({
+      userToken,
+      ...paramsClick,
+    });
+
+    if (success) {
+      fetchAlbumsByArtist();
+    }
   };
 
   return (
